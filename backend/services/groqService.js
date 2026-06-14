@@ -1,6 +1,6 @@
- const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const generateRecipes = async (ingredients, goal, servings) => {
   const prompt = `You are a professional chef AI. Generate exactly 3 recipes.
@@ -61,9 +61,23 @@ STRICT RULES:
 - nutrition must have calories as number, others as strings with g unit
 - Return ONLY valid JSON. No markdown, no explanation, no extra text before or after`;
 
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-const result = await model.generateContent(prompt);
-const text = result.response.text();
+  const response = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [
+      {
+        role: "system",
+        content: "You are a JSON-only API. You respond with only valid JSON, no markdown, no explanation."
+      },
+      {
+        role: "user",
+        content: prompt
+      }
+    ],
+    temperature: 0.3,
+    max_tokens: 4000,
+  });
+
+  const text = response.choices[0].message.content;
   console.log("Raw AI response:", text.substring(0, 500));
   
   const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
