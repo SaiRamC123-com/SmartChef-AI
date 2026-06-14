@@ -7,8 +7,8 @@ const mealRoutes = require("./routes/mealRoutes");
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173",
-                       "http://smart-chef-ai-ppyl-vercel.app"}));
+app.use(cors({ origin: ["http://localhost:5173", "http://smart-chef-ai-ppyl-vercel.app"], 
+                       credentials: true }));
 app.use(express.json());
 
 app.use("/api/recipes", recipeRoutes);
